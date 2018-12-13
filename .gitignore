@@ -1,3 +1,4 @@
 creds.py
 __pycache__/
 .*.swp
+extra/generating_images_demo/
