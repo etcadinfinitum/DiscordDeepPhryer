@@ -5,9 +5,9 @@ if [[ ! -z $(find generating_images_demo/ -name "row*") ]]; then
     rm generating_images_demo/row*
 fi
 
-for i in {0..20}; do
+for i in {0..10}; do
     montage generating_images_demo/modulate_${i}_0.jpg generating_images_demo/modulate_${i}_1.jpg -tile 2x1 -geometry +0+0 generating_images_demo/row_${i}.jpg
-    for j in {2..20}; do
+    for j in {2..10}; do
         montage generating_images_demo/row_${i}.jpg generating_images_demo/modulate_${i}_${j}.jpg -tile 2x1 -geometry +0+0 generating_images_demo/row_${i}.jpg
     done
     # montage generating_images_demo/modulate_${i}_[0-20].jpg -tile 21x1 -geometry +0+0 generating_images_demo/row_${i}.jpg
@@ -21,15 +21,15 @@ while [[ ! -e generating_images_demo/result.jpg ]]; do
     sleep 1
 done
 
-for i in {2..20}; do 
+for i in {2..10}; do 
     mv generating_images_demo/result.jpg generating_images_demo/tmp.jpg
     while [[ ! -e generating_images_demo/tmp.jpg || -e generating_images_demo/result.jpg ]]; do
         echo "waiting for result.jpg to be moved to tmp.jpg"
         sleep 1
     done
-    sleep 10
+    sleep 5
     montage generating_images_demo/tmp.jpg generating_images_demo/row_${i}.jpg -tile 1x2 -geometry +0+0 generating_images_demo/result.jpg
-    sleep 10
+    sleep 5
     while [[ ! -e generating_images_demo/result.jpg ]]; do
         echo "waiting for result.jpg to be regenerated"
         sleep 1
