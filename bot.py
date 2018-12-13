@@ -11,7 +11,7 @@ from urllib.request import urlretrieve
 import os
 import aiohttp
 import requests
-
+import glob
 
 client = discord.Client()
 
@@ -68,6 +68,16 @@ def deepfry(filename):
     response += "Parameters:\nFrequency: {}\nPhase shift: {}\nAmplitude: {}\nBias: {}\n".format(*params)
     return outfile, response
 
+def tile(lhs, rhs):
+    outfile = tempfile.mkstemp(prefix='tiled', suffix='.jpg')[1]
+    logging.info('Tiling %s and %s' % (lhs, rhs))
+    with Image(filename=lhs) as lImg:
+        with Image(filename=rhs) as rImg:
+            with Image(width = lImg.width + rImg.width, height = lImg.height) as result:
+                result.composite(image=lImg, left=0, top=0)
+                result.composite(image=rImg, left=lImg.width, top=0)
+                result.save(filename=outfile)
+    return outfile
 
 @client.event
 async def on_message(message):
@@ -77,7 +87,10 @@ async def on_message(message):
     
     # help messages are good ^^,
     if message.content.startswith('deepfriedHELP'):
-        msg = 'Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\nCommands:\tAttachment:\tResult:\nFryThis\t\t\tjpg, png\t\t\tHecking FRIED\nFryThis\t\t\tNone\t\t\t\tTry it!\n\nBETA FEATURES:\n'
+        msg = 'Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
+        msg += 'Commands:\tAttachment:\tResult:\nFryThis\t\t\tjpg, png\t\t\tHecking FRIED\n'
+        msg += 'FryThis\t\t\tNone\t\t\t\tTry it!\n\n'
+        msg += 'BETA FEATURES:\n'
         await client.send_message(message.channel, msg)
     
     # FRY THIS
@@ -105,10 +118,21 @@ async def on_message(message):
             '''
             # deep fry the resulting attachment
             result_file, text = deepfry(filename)
+            
             await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
         # the sender did not send an attachment; oops
         else:
+            phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
+            insult = ['dongleberry.', 'dingbat.', 'troglodyte.', 'deadhead.', 'cockalorum.', 'ninnyhammer.', 'plebian.']
             print('no image attached; sending a stock image instead')
+            msg = phrase[random.randint(0, len(phrase) - 1)] + insult[random.randint(0, len(insult) - 1)]
+            # get a random picture
+            if os.path.isdir('extra/stock_images'):
+                files = glob.glob('extra/stock_images/*.*')
+                filename = files[random.randint(0, len(files) - 1)]
+                result_file, text = deepfry(filename)
+                big_result = tile(filename, result_file)
+                await client.send_file(message.channel, big_result, content=msg, filename='derp.jpg')
 
 @client.event
 async def on_ready():
