@@ -95,6 +95,10 @@ async def on_message(message):
     
     # FRY THIS
     if message.content.startswith('FryThis'):
+        # react to triggering message
+        emojis = {'robot': '🤖', 'camera': '📸'}
+        for item in emojis.values():
+            await client.add_reaction(message, item)
         # the sender sent an attachment! whoop whoop
         if len(message.attachments) > 0:
             print('only frying first image for the time being')
