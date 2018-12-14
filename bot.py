@@ -104,26 +104,36 @@ async def on_message(message):
             print('only frying first image for the time being')
             if not os.path.isdir('/tmp/phryer'):
                 os.mkdir('/tmp/phryer')
-            filename = '/tmp/phryer/{}'.format(message.attachments[0]['filename'] + '.jpg')
+            result_file = '/tmp/phryer/{}'.format(message.attachments[0]['filename'])
             # retrieve the attachment
-            img_data = requests.get(message.attachments[0]['url'], stream=True)
-            with open(filename, 'wb') as f:
-                for chunk in img_data.iter_content(chunk_size=128):
-                    f.write(chunk)
-            # block comment is for aiohttp which is the discord.py recommendation but I can't figure out how to get bytestreams of the content from the request response
-            '''
+            is_gif = False
+            is_valid = True
+            # useful properties: resp.status, resp.headers['Content-Type'], etc
             with aiohttp.ClientSession() as session:
                 async with session.get(message.attachments[0]['url']) as resp:
-                    pdb.set_trace()
-                    # useful properties: resp.status, resp.headers['Content-Type'], etc
-                    with open(filename, 'wb') as the_file:
-                        the_file.write(resp.read())
-            pdb.set_trace()
-            '''
+                    # check response for content-type attribute
+                    if resp.headers['Content-Type'] == 'image/gif':
+                        is_gif = True
+                    elif resp.headers['Content-Type'] != 'image/png' and resp.headers['Content-Type'] != 'image/jpeg':
+                        is_valid = False
+                    # read response into file
+                    if is_valid:
+                        with open(result_file, 'wb') as the_file:
+                            async for line in resp.content:
+                                the_file.write(line)
             # deep fry the resulting attachment
-            result_file, text = deepfry(filename)
-            
-            await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
+            if is_valid:
+                if is_gif:
+                    result_file, text = mkgif(result_file)
+                else:
+                    result_file = None
+                    # result_file, text = deepfry(result_file)
+                await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
+            else:
+                # tell the user they're a dumbass for trying to fry a non-img file type
+                pass
+                result_file = None
+                text = 'Send an image file, dumbass.'
         # the sender did not send an attachment; oops
         else:
             phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
