@@ -7,10 +7,8 @@ import tempfile
 import math
 import random
 import logging
-from urllib.request import urlretrieve
 import os
 import aiohttp
-import requests
 import glob
 
 client = discord.Client()
@@ -31,23 +29,25 @@ def heckin_rainbows(img):
 def mkgif(filename):
     outfile = tempfile.mkstemp(prefix="deepfry", suffix=".gif")[1]
     logging.info("About to run mkgif(%s) -> %s", filename, outfile)
+    outdir = outfile.split('.')[0]
+    os.mkdir(outdir)
+    params = create_params()
+    with Image(filename=filename) as original:
+        zeros = len(str(len(original.sequence)))
+        framecount = 0
+        for frame in original.sequence:
+            with Image(frame) as mod_frame:
+                mod_frame.modulate(-800, 200)
+                mod_frame.evaluate(operator='gaussiannoise', value=0.05)
+                mod_frame.function('sinusoid', params)
+                mod_frame.save(filename=(outdir + '/' + ('0' * (zeros - len(str(framecount)))) + str(framecount) + '.jpg'))
+            framecount += 1
+    frames = sorted(glob.glob(outdir + '/*.jpg'))
     with Image() as final:
-        with Image(filename=filename) as img:
-            params = create_params()
-            for frame in img.sequence:
-                with Image(frame).convert('jpeg') as mod_frame:
-                    mod_frame.modulate(brightness=150, saturation=200)
-                    slope = math.tan((math.pi * (55/100.0+1.0)/4.0))
-                    if slope < 0.0:
-                        slope=0.0
-                    intercept = 15/100.0+((100-15)/200.0)*(1.0-slope)
-                    mod_frame.function("polynomial", [slope, intercept])
-                    mod_frame.evaluate(operator='gaussiannoise', value=0.05)
-                    mod_frame.function('sinusoid', params)
-                    with mod_frame.convert('gif') as new_frame:
-                        mod_frame.delay = 3
-                        final.sequence.append(new_frame)
-        final.type = 'optimize'
+        for frame in frames:
+            with Image(filename=frame) as img:
+                final.sequence.append(img)
+        final.type='optimize'
         final.save(filename=outfile)
     return outfile, None
 
@@ -125,10 +125,10 @@ async def on_message(message):
             if is_valid:
                 if is_gif:
                     result_file, text = mkgif(result_file)
+                    await client.send_file(message.channel, result_file, content=text, filename="test.gif")
                 else:
-                    result_file = None
-                    # result_file, text = deepfry(result_file)
-                await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
+                    result_file, text = deepfry(result_file)
+                    await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
             else:
                 # tell the user they're a dumbass for trying to fry a non-img file type
                 pass
