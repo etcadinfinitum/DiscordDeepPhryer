@@ -105,6 +105,7 @@ async def on_message(message):
             if not os.path.isdir('/tmp/phryer'):
                 os.mkdir('/tmp/phryer')
             result_file = '/tmp/phryer/{}'.format(message.attachments[0]['filename'])
+            print('result file is: ' + result_file)
             # retrieve the attachment
             is_gif = False
             is_valid = True
@@ -126,14 +127,13 @@ async def on_message(message):
                 if is_gif:
                     result_file, text = mkgif(result_file)
                 else:
-                    result_file = None
-                    # result_file, text = deepfry(result_file)
+                    result_file, text = deepfry(result_file)
                 await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
             else:
                 # tell the user they're a dumbass for trying to fry a non-img file type
-                pass
                 result_file = None
                 text = 'Send an image file, dumbass.'
+                await client.send_message(message.channel, text)
         # the sender did not send an attachment; oops
         else:
             phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
