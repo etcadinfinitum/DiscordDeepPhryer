@@ -8,12 +8,16 @@ This bot fries images! Specifically, it applies some color settings to a jpeg, p
 
 The bot is invoked with the command `FryThis`. If the originating message was not sent with an attachment, the bot will pick from a set of stock images. 
 
-Some arguments are supported. Invoking with `params` will return the parameter set the image used in the response body. Some default color settings are supported: `galaxy`, ``. The `chaos` argument on a GIF 
+Some arguments are supported. Invoking with `params` will return the parameter set the image used in the response body. 
+Some default color settings are supported: `galaxy`, `flir`, `default`, `dark`. 
+The `chaos` argument on a GIF will pick parameters at random for each frame. Any other arguments will be ignored if this happens.
 
 A help message will print with the command `deepfriedHELP`. It includes much of this information.
 
 Example Usages:
+
 | Command | Attachment | Example Image Result | Example Message |
+| ------- | ---------- | -------------------- | --------------- |
 | `FryThis` | none | | |
 | `FryThis galaxy` | jpg | | |
 | `FryThis params` | | | |
@@ -27,9 +31,11 @@ Go through the steps to create and authorize a bot on a Discord server. Steps ar
 
 ##### Step 2 
 The script expects important data to be in a file called `creds.py`. Create this file, and add the following lines:
+
 | Code Line | Data Needed | 
 | --------- | ----------- | 
 | `TOKEN='XXXXXX_YOUR_TOKEN_HERE_XXXXXXXXX'` | The bot's unique token, which can be obtained in the bot's administrative settings panel. Log in [here](https://www.discordapp.com/developers) with your server's credentials (refer to Step 1). | 
+| `SUPPORT_LINKS=False` | A boolean value indicating whether or not external links to large images will be supported. Note: actual link processing/creation/assembly is currently **NOT IMPLEMENTED** in this repository. PRs are welcome. |
 
 This file (`creds.py`) will be ignored in Version Control with the existing .gitigore. Proceed with caution when modifying this setting. 
 
