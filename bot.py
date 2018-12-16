@@ -37,9 +37,9 @@ def mkgif(filename):
         framecount = 0
         for frame in original.sequence:
             with Image(frame) as mod_frame:
-                mod_frame.modulate(-800, 200)
+                mod_frame.modulate(200, -800)
                 mod_frame.evaluate(operator='gaussiannoise', value=0.05)
-                mod_frame.function('sinusoid', params)
+                # mod_frame.function('sinusoid', params)
                 mod_frame.save(filename=(outdir + '/' + ('0' * (zeros - len(str(framecount)))) + str(framecount) + '.jpg'))
             framecount += 1
     frames = sorted(glob.glob(outdir + '/*.jpg'))
@@ -87,10 +87,13 @@ async def on_message(message):
     
     # help messages are good ^^,
     if message.content.startswith('deepfriedHELP'):
-        msg = 'Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
-        msg += 'Commands:\tAttachment:\tResult:\nFryThis\t\t\tjpg, png\t\t\tHecking FRIED\n'
-        msg += 'FryThis\t\t\tNone\t\t\t\tTry it!\n\n'
+        msg = '```Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
+        msg += 'Commands:  Attachment:  Result:\n'
+        msg += 'FryThis    jpg, png     Hecking FRIED\n'
+        msg += 'FryThis    None         Try it!\n\n'
         msg += 'BETA FEATURES:\n'
+        msg += 'The Phryer supports GIFs! (Mostly.) \nInvoke with the \'FryThis\' command.\n'
+        msg += 'For an extra serving of weird, add \'chaos\' to your command.```'
         await client.send_message(message.channel, msg)
     
     # FRY THIS
@@ -125,15 +128,30 @@ async def on_message(message):
             if is_valid:
                 if is_gif:
                     result_file, text = mkgif(result_file)
+                    if os.path.getsize(result_file) > 7800000:
+                        text = 'The fried gif is too large; RIP. '
+                        if not creds.SUPPORT_LINKS:
+                            text += 'Harass your admin to get image links supported.'
+                        else:
+                            text += 'The image link is: '
+                            # need logic here to supply a link to the image
                     await client.send_file(message.channel, result_file, content=text, filename="test.gif")
                 else:
                     result_file, text = deepfry(result_file)
+                    if os.path.getsize(result_file) > 7800000:
+                        text = 'The fried image is too large; RIP. '
+                        if not creds.SUPPORT_LINKS:
+                            text += 'Harass your admin to get image links supported.'
+                        else:
+                            text += 'The image link is: '
+                            # need logic here to supply a link to the image
                     await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
             else:
                 # tell the user they're a dumbass for trying to fry a non-img file type
                 pass
                 result_file = None
                 text = 'Send an image file, dumbass.'
+                await client.send_message(message.channel, text)
         # the sender did not send an attachment; oops
         else:
             phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']

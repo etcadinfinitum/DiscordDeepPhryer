@@ -3,3 +3,4 @@ __pycache__/
 .*.swp
 extra/generating_images_demo/
 env/
+extra/*/
