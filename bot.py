@@ -10,6 +10,7 @@ import logging
 import os
 import aiohttp
 import glob
+import shutil
 
 client = discord.Client()
 
@@ -26,20 +27,20 @@ def heckin_rainbows(img):
     img.function('sinusoid', params)
     return params
 
-def mkgif(filename):
+def mkgif(filename, params):
     outfile = tempfile.mkstemp(prefix="deepfry", suffix=".gif")[1]
     logging.info("About to run mkgif(%s) -> %s", filename, outfile)
     outdir = outfile.split('.')[0]
     os.mkdir(outdir)
-    params = create_params()
     with Image(filename=filename) as original:
         zeros = len(str(len(original.sequence)))
         framecount = 0
         for frame in original.sequence:
             with Image(frame) as mod_frame:
-                mod_frame.modulate(200, -800)
+                mod_frame.modulate(params['brightness'], params['saturation'])
                 mod_frame.evaluate(operator='gaussiannoise', value=0.05)
-                # mod_frame.function('sinusoid', params)
+                if params['sine'] != None:
+                    mod_frame.function('sinusoid', params['sine'])
                 mod_frame.save(filename=(outdir + '/' + ('0' * (zeros - len(str(framecount)))) + str(framecount) + '.jpg'))
             framecount += 1
     frames = sorted(glob.glob(outdir + '/*.jpg'))
@@ -49,23 +50,24 @@ def mkgif(filename):
                 final.sequence.append(img)
         final.type='optimize'
         final.save(filename=outfile)
-    return outfile, None
+    response = format_params(params)
+    return outfile, response
 
-def deepfry(filename):
+def deepfry(filename, params):
     outfile = tempfile.mkstemp(prefix="deepfry", suffix=".jpg")[1]
     logging.info("About to run deepfry(%s) -> %s", filename, outfile)
     with Image(filename=filename) as img:
-        img.modulate(brightness=150, saturation=200)
+        img.modulate(brightness=params['brightness'], saturation=params['saturation'])
         slope = math.tan((math.pi * (55/100.0+1.0)/4.0))
         if slope < 0.0:
           slope=0.0
         intercept = 15/100.0+((100-15)/200.0)*(1.0-slope)
         img.function("polynomial", [slope, intercept])
         img.evaluate(operator='gaussiannoise', value=0.05)
-        params = heckin_rainbows(img)
+        if params['sine'] != None:
+            img.function('sinusoid', params['sine'])
         img.save(filename=outfile)
-    response = ""
-    response += "Parameters:\nFrequency: {}\nPhase shift: {}\nAmplitude: {}\nBias: {}\n".format(*params)
+    response = format_params(params)
     return outfile, response
 
 def tile(lhs, rhs):
@@ -78,6 +80,58 @@ def tile(lhs, rhs):
                 result.composite(image=rImg, left=lImg.width, top=0)
                 result.save(filename=outfile)
     return outfile
+
+def make_link(original_file):
+    shutil.copy(original_file, creds.PATH)
+    text = '\nThe image is located at '
+    text += creds.URL + os.path.basename(original_file)
+    return text
+
+def format_params(params):
+    pdb.set_trace()
+    response = ''
+    if params['params'] and not params['chaos']:
+        response += 'Parameters:\n'
+        response += 'Brightness: ' + str(params['brightness']) + '\n'
+        response += 'Saturation: ' + str(params['saturation']) + '\n'
+        if params['sine'] != None:
+            response += 'Frequency: {}\nPhase shift: {}\nAmplitude: {}\nBias: {}\n'.format(*params['sine'])
+    return response
+
+def get_colorschemes():
+    random_bright = 0
+    while random_bright < 100 and random_bright > -100:
+        random_bright = random.randint(-1000, 800)
+    # need to figure out how to best determine saturation relative to brightness for all ranges...
+    random_sat = 0
+    while random_sat < 100 and random_sat > -100:
+        random_sat = random.randint(-1000, 1000)
+    return {'flir': { 'brightness': 200, 'saturation': -800 }, 
+            'dark': { 'brightness': -100, 'saturation': -200 },
+            'classic': { 'brightness': 200, 'saturation': 300 },
+            'galaxy': { 'brightness': -1000, 'saturation': -1000 },
+            'random': { 'brightness': random_bright, 'saturation': random_sat },
+            }
+
+def parse_args(content):
+    operations = {}
+    # determine if link should be added to message body
+    operations['link'] = True if 'link' in content else False
+    operations['sine'] = create_params() if 'crispy' in content else None
+    operations['params'] = True if 'params' in content else False
+    operations['brightness'] = None
+    operations['saturation'] = None
+    bri_sat = get_colorschemes()
+    for keyword in bri_sat.keys():
+        if keyword in content:
+            operations['brightness'] = bri_sat[keyword]['brightness']
+            operations['saturation'] = bri_sat[keyword]['saturation']
+    if not operations['brightness']:
+        operations['brightness'] = bri_sat['random']['brightness']
+        operations['saturation'] = bri_sat['random']['saturation']
+        operations['sine'] = create_params()
+    operations['chaos'] = True if 'chaos' in content else False
+    return operations
 
 @client.event
 async def on_message(message):
@@ -125,30 +179,27 @@ async def on_message(message):
                             async for line in resp.content:
                                 the_file.write(line)
             # deep fry the resulting attachment
+            send_attachment = True
+            operations = parse_args(message.content)
             if is_valid:
                 if is_gif:
-                    result_file, text = mkgif(result_file)
-                    if os.path.getsize(result_file) > 7800000:
-                        text = 'The fried gif is too large; RIP. '
-                        if not creds.SUPPORT_LINKS:
-                            text += 'Harass your admin to get image links supported.'
-                        else:
-                            text += 'The image link is: '
-                            # need logic here to supply a link to the image
-                    await client.send_file(message.channel, result_file, content=text, filename="test.gif")
+                    result_file, text = mkgif(result_file, operations)
                 else:
-                    result_file, text = deepfry(result_file)
-                    if os.path.getsize(result_file) > 7800000:
-                        text = 'The fried image is too large; RIP. '
-                        if not creds.SUPPORT_LINKS:
-                            text += 'Harass your admin to get image links supported.'
-                        else:
-                            text += 'The image link is: '
-                            # need logic here to supply a link to the image
-                    await client.send_file(message.channel, result_file, content=text, filename="test.jpg")
+                    result_file, text = deepfry(result_file, operations)
+                if os.path.getsize(result_file) > 7800000:
+                    send_attachment = False
+                    text = '\nThe file is too large to attach; RIP. '
+                if operations['link'] or not send_attachment:
+                    if not creds.SUPPORT_LINKS:
+                        text += 'Harass your admin to get image links supported.'
+                    else:
+                        text += make_link(result_file)
+                if send_attachment:
+                    await client.send_file(message.channel, result_file, content=text, filename='test' + os.path.splitext(result_file)[1])
+                else:
+                    await client.send_message(message.channel, text)
             else:
                 # tell the user they're a dumbass for trying to fry a non-img file type
-                pass
                 result_file = None
                 text = 'Send an image file, dumbass.'
                 await client.send_message(message.channel, text)
@@ -159,11 +210,13 @@ async def on_message(message):
             print('no image attached; sending a stock image instead')
             msg = phrase[random.randint(0, len(phrase) - 1)] + insult[random.randint(0, len(insult) - 1)]
             # get a random picture
+            operations = parse_args(message.content)
             if os.path.isdir('extra/stock_images'):
                 files = glob.glob('extra/stock_images/*.*')
                 filename = files[random.randint(0, len(files) - 1)]
-                result_file, text = deepfry(filename)
+                result_file, text = deepfry(filename, operations)
                 big_result = tile(filename, result_file)
+                msg += '\n' + text
                 await client.send_file(message.channel, big_result, content=msg, filename='derp.jpg')
 
 @client.event
