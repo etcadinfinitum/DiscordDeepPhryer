@@ -11,6 +11,7 @@ import os
 import aiohttp
 import glob
 import shutil
+import stat
 
 client = discord.Client()
 
@@ -83,6 +84,7 @@ def tile(lhs, rhs):
 
 def make_link(original_file):
     shutil.copy(original_file, creds.PATH)
+    os.chmod(creds.PATH + os.path.basename(original_file), stat.S_IROTH)
     text = '\nThe image is located at '
     text += creds.URL + os.path.basename(original_file)
     return text
