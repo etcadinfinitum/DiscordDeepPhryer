@@ -88,7 +88,6 @@ def make_link(original_file):
     return text
 
 def format_params(params):
-    pdb.set_trace()
     response = ''
     if params['params'] and not params['chaos']:
         response += 'Parameters:\n'
@@ -141,13 +140,17 @@ async def on_message(message):
     
     # help messages are good ^^,
     if message.content.startswith('deepfriedHELP'):
-        msg = '```Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
-        msg += 'Commands:  Attachment:  Result:\n'
-        msg += 'FryThis    jpg, png     Hecking FRIED\n'
-        msg += 'FryThis    None         Try it!\n\n'
+        msg = 'Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
+        msg += 'Invoking the bot: begin your message with `FryThis` (no backticks)\n'
+        msg += 'If you forget to add an attachment, the bot will publicly shame you. If you add an attachment that is not an image, the bot will publicly shame you.\n\n'
+        msg += 'Optional arguments:\n'
+        msg += 'Color defaults: `classic`, `dark`, `galaxy`, `flir`\n'
+        msg += 'Jump the shark: `crispy`\n'
+        msg += 'Generate a link: `link`\n'
+        msg += 'See the parameters used to generate the image: `params`\n\n'
         msg += 'BETA FEATURES:\n'
-        msg += 'The Phryer supports GIFs! (Mostly.) \nInvoke with the \'FryThis\' command.\n'
-        msg += 'For an extra serving of weird, add \'chaos\' to your command.```'
+        msg += 'The Phryer supports GIFs! (Mostly.) Add a GIF as an attachment and invoke with the same commands.'
+        # msg += 'For an extra serving of weird, add \'chaos\' to your command.```'
         await client.send_message(message.channel, msg)
     
     # FRY THIS
