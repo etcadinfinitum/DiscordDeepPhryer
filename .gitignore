@@ -4,3 +4,5 @@ __pycache__/
 extra/generating_images_demo/
 env/
 extra/*/
+!extra/example_images/
+!extra/stock_images/
