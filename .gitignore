@@ -1,4 +1,5 @@
 creds.py
+test_creds.py
 __pycache__/
 .*.swp
 extra/generating_images_demo/
@@ -6,3 +7,5 @@ env/
 extra/*/
 !extra/example_images/
 !extra/stock_images/
+testing.log
+prod.log

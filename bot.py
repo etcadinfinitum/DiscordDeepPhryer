@@ -1,17 +1,28 @@
 # run with python3
 import discord
-import creds 
+import logging
+import sys
+if len(sys.argv) == 2 and sys.argv[1] == 'test':
+    import test_creds as creds
+    log_file = 'testing.log'
+elif len(sys.argv) == 1:
+    import creds 
+    log_file = 'prod.log'
+else:
+    raise ImportError('Unsure what credentials file to use :(')
 import pdb
 from wand.image import Image
 import tempfile
 import math
 import random
-import logging
 import os
 import aiohttp
 import glob
 import shutil
 import stat
+import datetime
+
+logging.basicConfig(filename=log_file, level=logging.INFO)
 
 client = discord.Client()
 
@@ -67,6 +78,7 @@ def deepfry(filename, params):
         img.evaluate(operator='gaussiannoise', value=0.05)
         if params['sine'] != None:
             img.function('sinusoid', params['sine'])
+        logging.info('Fried img %s with params %s' % (filename, str(params)))
         img.save(filename=outfile)
     response = format_params(params)
     return outfile, response
@@ -157,17 +169,19 @@ async def on_message(message):
     
     # FRY THIS
     if message.content.startswith('FryThis') or message.content.startswith('FryDis'):
+        logging.info('Detected a triggering message! Text is: %s' % message.content)
         # react to triggering message
         emojis = {'robot': '🤖', 'camera': '📸'}
         for item in emojis.values():
             await client.add_reaction(message, item)
         # the sender sent an attachment! whoop whoop
         if len(message.attachments) > 0:
-            print('only frying first image for the time being')
+            logging.info('Detected an attachment to fry!')
+            logging.info('only frying first image for the time being')
             if not os.path.isdir('/tmp/phryer'):
                 os.mkdir('/tmp/phryer')
             result_file = '/tmp/phryer/{}'.format(message.attachments[0]['filename'])
-            print('result file is: ' + result_file)
+            logging.info('result file is: ' + result_file)
             # retrieve the attachment
             is_gif = False
             is_valid = True
@@ -201,19 +215,22 @@ async def on_message(message):
                     else:
                         text += make_link(result_file)
                 if send_attachment:
+                    logging.info('sent text response: %s' % text)
                     await client.send_file(message.channel, result_file, content=text, filename='test' + os.path.splitext(result_file)[1])
                 else:
+                    logging.info('sent text response: %s' % text)
                     await client.send_message(message.channel, text)
             else:
                 # tell the user they're a dumbass for trying to fry a non-img file type
                 result_file = None
                 text = 'Send an image file, dumbass.'
+                logging.info('sent text response: %s' % text)
                 await client.send_message(message.channel, text)
         # the sender did not send an attachment; oops
         else:
             phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
             insult = ['dongleberry.', 'dingbat.', 'troglodyte.', 'deadhead.', 'cockalorum.', 'ninnyhammer.', 'plebian.']
-            print('no image attached; sending a stock image instead')
+            logging.info('no image attached; sending a stock image instead')
             msg = phrase[random.randint(0, len(phrase) - 1)] + insult[random.randint(0, len(insult) - 1)]
             # get a random picture
             operations = parse_args(message.content)
@@ -227,9 +244,11 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------------')
+    logging.info('Logged in as')
+    logging.info(client.user.name)
+    logging.info(client.user.id)
+    logging.info(str(datetime.datetime.now()))
+    logging.info('------------')
+    print('Started bot, logging is active. This is the last non-exception message you will see')
 
 client.run(creds.TOKEN)
