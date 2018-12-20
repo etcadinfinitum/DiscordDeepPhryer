@@ -1,6 +1,6 @@
 # Deep Phryer
 
-*A Discord bot built in Python*
+*A Discord bot built in Python. Add the public bot to a server that you manage by clicking [this link](https://discordapp.com/oauth2/authorize?client_id=521562757787811841&scope=bot&permissions=100416).*
 
 ### Usage and Commands
 
@@ -21,17 +21,23 @@ A help message will print with the command `deepfriedHELP`. It includes much of 
 
 | Command | Attachment | Example Image Result | Example Message |
 | ------- | ---------- | -------------------- | --------------- |
-| `FryThis dark params` | none | ![cat does screm](extra/example_images/ex_4.jpg)| ```?????, you plebian. \n Parameters: \n Brightness: -100 \n Saturation: -200``` |
-| `FryThis flir link` | jpg | ![fried chicken smoke plumes](extra/example_images/ex_5.jpg) | ```The image is located at https://extracrispy.net/deepfryt_yerm4s.jpg``` |
-| `FryThis classic crispy params link` | gif | ![Hello yes this is dog meme](extra/example_images/ex_6.gif) | ```Parameters: \n Brightness: 200 \n Saturation: 300 \n Frequency: 8 \n Phase shift: -45 \n Amplitude: 0.8 \n Bias: 0.6000000000000001 \n The image is located at https://extracrispy.net/deepfry3a3jv1v7.gif``` | 
+| `FryThis dark params` | none | ![cat does screm](extra/example_images/ex_4.jpg)| ?????, you plebian. </br>Parameters: </br>Brightness: -100 </br>Saturation: -200 |
+| `FryThis flir link` | jpg | ![fried chicken smoke plumes](extra/example_images/ex_5.jpg) | The image is located at https://extracrispy.net/deepfryt_yerm4s.jpg |
+| `FryThis classic crispy params link` | gif | ![Hello yes this is dog meme](extra/example_images/ex_6.gif) | Parameters: </br>Brightness: 200 </br>Saturation: 300 </br>Frequency: 8 \n Phase shift: -45 </br>Amplitude: 0.8 </br>Bias: 0.6000000000000001 </br>The image is located at https://extracrispy.net/deepfry3a3jv1v7.gif | 
 
 ### Get your own Phryer
+
+If you don't want to deal with setting up your own infrastructure to host the bot, you can add the public bot to your server by clicking [this link](https://discordapp.com/oauth2/authorize?client_id=521562757787811841&scope=bot&permissions=100416). If you really want to run the bot yourself, read on!
 
 ##### Step 1
 Go through the steps to create and authorize a bot on a Discord server. Steps are described [here](https://www.devdungeon.com/content/make-discord-bot-python), among other places.
 
-##### Step 2 
-The script expects important data to be in a file called `creds.py`. Create this file, and add the following lines:
+##### Step 2
+Clone this repository onto the machine you want to run the bot on. Use the following command:
+`git clone https://github.com/etcadinfinitum/DiscordDeepPhryer.git`
+
+##### Step 3
+The script expects important data to be in a file called `creds.py`. Create this file within the repository folder created in Step 2, and add the following lines:
 
 | Code Line | Data Needed | 
 | --------- | ----------- | 
@@ -43,7 +49,7 @@ The script expects important data to be in a file called `creds.py`. Create this
 
 This file (`creds.py`) will be ignored in Version Control with the existing .gitigore. Proceed with caution when modifying this setting. 
 
-##### Step 3
+##### Step 4
 The bot requires Wand and imagemagick to be installed. Make sure you have the necessary packages installed; read the installation docs [here](http://docs.wand-py.org/en/0.4.1/guide/install.html).
 
 ### Long-Term Support
