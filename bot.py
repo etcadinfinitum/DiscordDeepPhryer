@@ -156,7 +156,7 @@ async def on_message(message):
         await client.send_message(message.channel, msg)
     
     # FRY THIS
-    if message.content.startswith('FryThis'):
+    if message.content.startswith('FryThis') or message.content.startswith('FryDis'):
         # react to triggering message
         emojis = {'robot': '🤖', 'camera': '📸'}
         for item in emojis.values():
