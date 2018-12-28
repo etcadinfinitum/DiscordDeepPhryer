@@ -49,6 +49,12 @@ def mkgif(filename, params):
         framecount = 0
         for frame in original.sequence:
             with Image(frame) as mod_frame:
+                if params['chaos']:
+                    params['brightness'], params['saturation'] = random_brightness_saturation()
+                    if params['brightness'] % 3 == 0:
+                        params['sine'] = create_params()
+                    else:
+                        params['sine'] = None
                 mod_frame.modulate(params['brightness'], params['saturation'])
                 mod_frame.evaluate(operator='gaussiannoise', value=0.05)
                 if params['sine'] != None:
@@ -61,6 +67,7 @@ def mkgif(filename, params):
             with Image(filename=frame) as img:
                 final.sequence.append(img)
         final.type='optimize'
+        logging.info('Fried img %s with params %s' % (filename, str(params)))
         final.save(filename=outfile)
     response = format_params(params)
     return outfile, response
@@ -111,7 +118,7 @@ def format_params(params):
             response += 'Frequency: {}\nPhase shift: {}\nAmplitude: {}\nBias: {}\n'.format(*params['sine'])
     return response
 
-def get_colorschemes():
+def random_brightness_saturation():
     random_bright = 0
     while random_bright < 100 and random_bright > -100:
         random_bright = random.randint(-1000, 800)
@@ -119,6 +126,10 @@ def get_colorschemes():
     random_sat = 0
     while random_sat < 100 and random_sat > -100:
         random_sat = random.randint(-1000, 1000)
+    return random_bright, random_sat
+
+def get_colorschemes():
+    random_bright, random_sat = random_brightness_saturation()
     return {'flir': { 'brightness': 200, 'saturation': -800 }, 
             'dark': { 'brightness': -100, 'saturation': -200 },
             'classic': { 'brightness': 200, 'saturation': 300 },
@@ -164,7 +175,7 @@ async def on_message(message):
         msg += 'See the parameters used to generate the image: `params`\n\n'
         msg += 'BETA FEATURES:\n'
         msg += 'The Phryer supports GIFs! (Mostly.) Add a GIF as an attachment and invoke with the same commands.'
-        # msg += 'For an extra serving of weird, add \'chaos\' to your command.```'
+        msg += 'For an extra serving of weird, add `chaos` to your command.'
         await client.send_message(message.channel, msg)
     
     # FRY THIS
