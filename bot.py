@@ -174,7 +174,7 @@ async def on_message(message):
         msg += 'Generate a link: `link`\n'
         msg += 'See the parameters used to generate the image: `params`\n\n'
         msg += 'BETA FEATURES:\n'
-        msg += 'The Phryer supports GIFs! (Mostly.) Add a GIF as an attachment and invoke with the same commands.'
+        msg += 'The Phryer supports GIFs! (Mostly.) Add a GIF as an attachment and invoke with the same commands.\n'
         msg += 'For an extra serving of weird, add `chaos` to your command.'
         await client.send_message(message.channel, msg)
     
