@@ -105,7 +105,7 @@ def make_link(original_file):
     shutil.copy(original_file, creds.PATH)
     os.chmod(creds.PATH + os.path.basename(original_file), stat.S_IROTH)
     text = '\nThe image is located at '
-    text += creds.URL + os.path.basename(original_file)
+    text += '<' + creds.URL + os.path.basename(original_file) + '>'
     return text
 
 def format_params(params):
@@ -219,7 +219,10 @@ async def on_message(message):
                     result_file, text = deepfry(result_file, operations)
                 if os.path.getsize(result_file) > 7800000:
                     send_attachment = False
-                    text = '\nThe file is too large to attach; RIP. '
+                    text += '\nThe file is too large to attach; RIP. '
+                if operations['chaos']:
+                    send_attachment = False
+                    text += ' Be advised: clicking the link may cause eye strain.'
                 if operations['link'] or not send_attachment:
                     if not creds.SUPPORT_LINKS:
                         text += 'Harass your admin to get image links supported.'
