@@ -22,8 +22,8 @@ A help message will print with the command `deepfriedHELP`. It includes much of 
 | Command | Attachment | Example Image Result | Example Message |
 | ------- | ---------- | -------------------- | --------------- |
 | `FryThis dark params` | none | ![cat does screm](extra/example_images/ex_4.jpg)| ?????, you plebian. </br>Parameters: </br>Brightness: -100 </br>Saturation: -200 |
-| `FryThis flir link` | jpg | ![fried chicken smoke plumes](extra/example_images/ex_5.jpg) | The image is located at https://extracrispy.net/deepfryt_yerm4s.jpg |
-| `FryThis classic crispy params link` | gif | ![Hello yes this is dog meme](extra/example_images/ex_6.gif) | Parameters: </br>Brightness: 200 </br>Saturation: 300 </br>Frequency: 8 \n Phase shift: -45 </br>Amplitude: 0.8 </br>Bias: 0.6000000000000001 </br>The image is located at https://extracrispy.net/deepfry3a3jv1v7.gif | 
+| `FryThis flir link` | jpg | ![fried chicken smoke plumes](extra/example_images/ex_5.jpg) | The image is located at https://extracrispy.net/images/deepfryt_yerm4s.jpg |
+| `FryThis classic crispy params link` | gif | ![Hello yes this is dog meme](extra/example_images/ex_6.gif) | Parameters: </br>Brightness: 200 </br>Saturation: 300 </br>Frequency: 8 \n Phase shift: -45 </br>Amplitude: 0.8 </br>Bias: 0.6000000000000001 </br>The image is located at https://extracrispy.net/images/deepfry3a3jv1v7.gif | 
 
 ### Get your own Phryer
 
