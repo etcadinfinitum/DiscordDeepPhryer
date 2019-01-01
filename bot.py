@@ -29,8 +29,8 @@ client = discord.Client()
 def create_params():
     frequency = random.randint(1, 10) # 3
     phase_shift = random.randint(-90, -25)  #-90
-    amplitude = random.randint(1, 9) * 0.1 # 0.2
-    bias = random.randint(1, 9) * 0.1 # 0.7
+    amplitude = random.randint(6, 9) * 0.1 # 0.2
+    bias = random.randint(3, 8) * 0.1 # 0.7
     params = [frequency, phase_shift, amplitude, bias]
     return params
 
