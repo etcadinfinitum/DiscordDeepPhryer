@@ -1,5 +1,6 @@
 # run with python3
 import discord
+import asyncio
 import logging
 import sys
 if len(sys.argv) == 2 and sys.argv[1] == 'test':
@@ -289,4 +290,27 @@ async def on_ready():
     logging.info('------------')
     print('Started bot, logging is active. This is the last non-exception message you will see')
 
-client.run(creds.TOKEN)
+def run_client(client):
+    while True:
+        try:
+            client.loop.run_until_complete(client.start(creds.TOKEN))
+        except KeyboardInterrupt:
+            logging.warning('Keyboard interrupt on main async loop detected')
+            client.loop.run_until_complete(client.logout())
+            pending = asyncio.Task.all_tasks(loop=client.loop)
+            gathered = asyncio.gather(*pending, loop=client.loop)
+            try:
+                gathered.cancel()
+                client.loop.run_until_complete(gathered)
+
+                # we want to retrieve any exceptions to make sure that
+                # they don't nag us about it being un-retrieved.
+                gathered.exception()
+            except:
+                pass
+        except Exception as e:
+            logging.error(repr(e))
+        finally:
+            client.loop.close()
+
+run_client(client)
