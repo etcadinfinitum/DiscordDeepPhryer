@@ -40,7 +40,7 @@ def heckin_rainbows(img):
     img.function('sinusoid', params)
     return params
 
-def mkgif(filename, params):
+async def mkgif(filename, params):
     outfile = tempfile.mkstemp(prefix="deepfry", suffix=".gif")[1]
     logging.info("About to run mkgif(%s) -> %s", filename, outfile)
     outdir = outfile.split('.')[0]
@@ -73,7 +73,7 @@ def mkgif(filename, params):
     response = format_params(params)
     return outfile, response
 
-def deepfry(filename, params):
+async def deepfry(filename, params):
     outfile = tempfile.mkstemp(prefix="deepfry", suffix=".jpg")[1]
     logging.info("About to run deepfry(%s) -> %s", filename, outfile)
     with Image(filename=filename) as img:
@@ -167,12 +167,12 @@ async def on_reaction_add(reaction, user):
         if not img_result:
             await client.send_message(reaction.message.channel, text)
         else:
-            destination_channel = client.get_channel(creds.DUMP_CHANNEL)
-            if not destination_channel:
+            if not reaction.message.channel.is_private and reaction.message.server.id == creds.SERVER:
+                destination_channel = client.get_channel(creds.DUMP_CHANNEL)
+                logging.info('Predefined destination channel IS AVAILABLE for this fry')
+            else:
                 destination_channel = reaction.message.channel
                 logging.info('Predefined destination channel is not available for this fry; sending in original channel')
-            else:
-                logging.info('Predefined destination channel IS AVAILABLE for this fry')
             await client.send_file(destination_channel, img_result, content=text, filename='derp' + os.path.splitext(img_result)[1])
             
 
@@ -239,9 +239,9 @@ async def bot_response(message, is_reaction):
         operations = parse_args(message.content)
         if is_valid:
             if is_gif:
-                result_file, text = mkgif(result_file, operations)
+                result_file, text = await mkgif(result_file, operations)
             else:
-                result_file, text = deepfry(result_file, operations)
+                result_file, text = await deepfry(result_file, operations)
             if os.path.getsize(result_file) > 7800000:
                 send_attachment = False
                 text += '\nThe file is too large to attach; RIP. '
@@ -252,7 +252,7 @@ async def bot_response(message, is_reaction):
                 if not creds.SUPPORT_LINKS:
                     text += 'Harass your admin to get image links supported.'
                 else:
-                    text += make_link(result_file)
+                    text += await make_link(result_file)
             if send_attachment:
                 logging.info('sent text response: %s' % text)
                 return result_file, text
@@ -269,15 +269,15 @@ async def bot_response(message, is_reaction):
     elif not is_reaction:
         phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
         insult = ['dongleberry.', 'dingbat.', 'troglodyte.', 'deadhead.', 'cockalorum.', 'ninnyhammer.', 'plebian.']
-        logging.info('no image attached; sending a stock image instead')
+        await logging.info('no image attached; sending a stock image instead')
         msg = phrase[random.randint(0, len(phrase) - 1)] + insult[random.randint(0, len(insult) - 1)]
         # get a random picture
-        operations = parse_args(message.content)
+        operations = await parse_args(message.content)
         if os.path.isdir('extra/stock_images'):
             files = glob.glob('extra/stock_images/*.*')
             filename = files[random.randint(0, len(files) - 1)]
-            result_file, text = deepfry(filename, operations)
-            big_result = tile(filename, result_file)
+            result_file, text = await deepfry(filename, operations)
+            big_result = await tile(filename, result_file)
             msg += '\n' + text
             return big_result, msg
 
@@ -313,4 +313,11 @@ def run_client(client):
         finally:
             client.loop.close()
 
+'''
+Commenting this out; unsure whether client.run() needs to be reimplemented
+if await is being used for expensive blocking calls
+
 run_client(client)
+'''
+
+client.run(creds.TOKEN)
