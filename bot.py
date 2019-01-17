@@ -91,7 +91,7 @@ async def deepfry(filename, params):
     response = format_params(params)
     return outfile, response
 
-def tile(lhs, rhs):
+async def tile(lhs, rhs):
     outfile = tempfile.mkstemp(prefix='tiled', suffix='.jpg')[1]
     logging.info('Tiling %s and %s' % (lhs, rhs))
     with Image(filename=lhs) as lImg:
@@ -269,10 +269,10 @@ async def bot_response(message, is_reaction):
     elif not is_reaction:
         phrase = ['You forgot to take out the garbage, you ', 'You must construct additional memes, you ', 'Get your own dang meme, ', '?????, you ', 'I\'d give you a nasty look but you\'ve already got one, ', 'You are living proof that morons are a subatomic particle, ', 'You must be a cactus because you\'re a prick, you ', 'I was hoping for a battle of memes but you appear to be unarmed, you ', 'Cool story, ']
         insult = ['dongleberry.', 'dingbat.', 'troglodyte.', 'deadhead.', 'cockalorum.', 'ninnyhammer.', 'plebian.']
-        await logging.info('no image attached; sending a stock image instead')
+        logging.info('no image attached; sending a stock image instead')
         msg = phrase[random.randint(0, len(phrase) - 1)] + insult[random.randint(0, len(insult) - 1)]
         # get a random picture
-        operations = await parse_args(message.content)
+        operations = parse_args(message.content)
         if os.path.isdir('extra/stock_images'):
             files = glob.glob('extra/stock_images/*.*')
             filename = files[random.randint(0, len(files) - 1)]
