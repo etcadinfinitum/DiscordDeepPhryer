@@ -289,6 +289,7 @@ async def on_ready():
     logging.info(str(datetime.datetime.now()))
     logging.info('------------')
     print('Started bot, logging is active. This is the last non-exception message you will see')
+    await client.change_presence(game=discord.Game(name='type: deepfriedHELP'))
 
 def run_client(client):
     while True:
