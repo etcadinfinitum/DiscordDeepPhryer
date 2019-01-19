@@ -160,7 +160,7 @@ def parse_args(content):
 
 @client.event
 async def on_reaction_add(reaction, user):
-    logging.INFO(str(datetime.datetime.now()))
+    logging.info(str(datetime.datetime.now()))
     if reaction.emoji == '😈':
         # respond - requested a fry!
         logging.info('detected reaction with smiling_imp emoji; trigger the fry')
@@ -185,7 +185,7 @@ async def on_message(message):
     
     # help messages are good ^^,
     if message.content.startswith('deepfriedHELP'):
-        logging.INFO(str(datetime.datetime.now()))
+        logging.info(str(datetime.datetime.now()))
         msg = 'Welcome to THE DEEP FRYER.\nUse your powers wisely.\n\n'
         msg += 'Invoking the bot: begin your message with `FryThis` (no backticks)\n'
         msg += 'If you forget to add an attachment, the bot will publicly shame you. If you add an attachment that is not an image, the bot will publicly shame you.\n\n'
